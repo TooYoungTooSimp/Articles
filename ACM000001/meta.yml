@@ -1,0 +1,10 @@
+---
+title: A brief introduction to pb_ds for ICPC
+author: Yuchen Lei
+date: \today
+header-includes: \pagenumbering{gobble}
+geometry:
+- a4paper
+- scale=0.75
+abstract: pb_ds, also known as Policy-Based Data Structures, is a g++ specific library of policy-based elementary data structures. In the rest of this article, we will take a glance at this library.
+...
