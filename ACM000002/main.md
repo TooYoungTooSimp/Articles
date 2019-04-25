@@ -16,4 +16,4 @@ public:
 };
 ```
 
-
+`queue_clearable` clears 6x faster than naive `while(!q.empty()) q.pop();` on `msvc-debug`.

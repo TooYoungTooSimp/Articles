@@ -139,4 +139,7 @@ queue:}\label{how-to-efficiently-clear-a-queue}}
 \end{Highlighting}
 \end{Shaded}
 
+\texttt{queue\_clearable} clears 6x faster than naive
+\texttt{while(!q.empty())\ q.pop();} on \texttt{msvc-debug}.
+
 \end{document}
