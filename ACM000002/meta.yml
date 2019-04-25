@@ -1,0 +1,10 @@
+---
+title: ICPC Howtos
+author: Yuchen Lei
+date: \today
+header-includes: \pagenumbering{gobble}
+geometry:
+- a4paper
+- scale=0.75
+abstract: Short snippets to solve some specific problems.
+...
