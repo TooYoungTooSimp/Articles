@@ -173,7 +173,93 @@ thin\_heap\_tag & \(O(1)\) & \(O(\log{n})\)/\(O(n)\) & \(O(\log{n})\) &
 \bottomrule
 \end{longtable}
 
-Unlike STL's priority\_queue, priority\_queue in pb\_ds supports more
+Unlike STL's implementation, priority\_queue in pb\_ds supports more
 opeartions such as remove, modify and join.
+
+For example, assume we are implementing heap optimized dijkstra to find
+single source shortest path, we need to update shortest path length for
+all point which will be relaxed. Traditionally, we will push a new
+\texttt{\{new\_dis,\ point\}} into heap so we can find correct shortest
+point right now and when the top element's distance doesn't match the
+global answer, we can directly drop it for it is a obsoleted element.
+This can cause memory overhead obviously.
+
+But with the modify operation of pb\_ds's priority\_queue, we can
+elegantly solve this problem, we only need to add a global array to
+store all the iterators of points.
+
+A g++ offical example snippet is shown below.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{typedef} \BuiltInTok{std::}\NormalTok{pair<}\DataTypeTok{size_t}\NormalTok{, }\DataTypeTok{size_t}\NormalTok{> pq_value;}
+\KeywordTok{struct}\NormalTok{ pq_value_cmp : }\KeywordTok{public}\NormalTok{ binary_function<pq_value, pq_value, }\DataTypeTok{bool}\NormalTok{>}
+\NormalTok{\{}
+  \KeywordTok{inline} \DataTypeTok{bool}
+  \KeywordTok{operator}\NormalTok{()(}\AttributeTok{const}\NormalTok{ pq_value& r_lhs, }\AttributeTok{const}\NormalTok{ pq_value& r_rhs) }\AttributeTok{const}
+\NormalTok{  \{ }\ControlFlowTok{return}\NormalTok{ r_rhs.second < r_lhs.second; \}}
+\NormalTok{\};}
+\KeywordTok{typedef}\NormalTok{ __gnu_pbds::priority_queue< pq_value, pq_value_cmp> }\DataTypeTok{pq_t}\NormalTok{;}
+\NormalTok{vector<}\DataTypeTok{pq_t}\NormalTok{::point_iterator> a_it;}
+\ControlFlowTok{for}\NormalTok{ (}\DataTypeTok{size_t}\NormalTok{ i = }\DecValTok{0}\NormalTok{; i < num_vertices; ++i)}
+\NormalTok{    a_it.push_back(p.push(pq_value(i, graph_inf)));}
+\NormalTok{p.modify(a_it[}\DecValTok{0}\NormalTok{], pq_value(}\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{));}
+\ControlFlowTok{if}\NormalTok{ (pot_dist < a_it[neighbor_i]->second)}
+\NormalTok{        p.modify(a_it[neighbor_i], pq_value(neighbor_i, pot_dist));}
+\end{Highlighting}
+\end{Shaded}
+
+Here's another (easier) example to solve HDU2544:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\PreprocessorTok{#include }\ImportTok{<bits/stdc++.h>}
+\PreprocessorTok{#include }\ImportTok{<ext/pb_ds/priority_queue.hpp>}
+\KeywordTok{using} \KeywordTok{namespace}\NormalTok{ std;}
+\AttributeTok{const} \DataTypeTok{int}\NormalTok{ N = }\DecValTok{105}\NormalTok{, M = }\DecValTok{20500}\NormalTok{;}
+\DataTypeTok{int}\NormalTok{ adj[N], nxt[M], to[M], len[M], ecnt;}
+\DataTypeTok{int}\NormalTok{ dis[N];}
+\KeywordTok{inline} \DataTypeTok{void}\NormalTok{ addEdge(}\DataTypeTok{int}\NormalTok{ f, }\DataTypeTok{int}\NormalTok{ t, }\DataTypeTok{int}\NormalTok{ l)}
+\NormalTok{\{}
+\NormalTok{    ecnt++;}
+\NormalTok{    nxt[ecnt] = adj[f];}
+\NormalTok{    adj[f] = ecnt;}
+\NormalTok{    to[ecnt] = t;}
+\NormalTok{    len[ecnt] = l;}
+\NormalTok{\}}
+\KeywordTok{struct}\NormalTok{ node}
+\NormalTok{\{}
+    \DataTypeTok{int}\NormalTok{ u, l;}
+    \DataTypeTok{bool} \KeywordTok{operator}\NormalTok{<(}\AttributeTok{const}\NormalTok{ node &rhs) }\AttributeTok{const} \KeywordTok{noexcept}\NormalTok{ \{ }\ControlFlowTok{return}\NormalTok{ l > rhs.l; \}}
+\NormalTok{\};}
+\KeywordTok{typedef}\NormalTok{ __gnu_pbds::priority_queue<node> heap;}
+\NormalTok{heap::point_iterator ite[N];}
+\DataTypeTok{int}\NormalTok{ main()}
+\NormalTok{\{}
+\NormalTok{    heap H;}
+    \ControlFlowTok{for}\NormalTok{ (}\DataTypeTok{int}\NormalTok{ n, m; scanf(}\StringTok{"}\SpecialCharTok{%d%d}\StringTok{"}\NormalTok{, &n, &m), n | m;)}
+\NormalTok{    \{}
+\NormalTok{        H.clear();}
+\NormalTok{        ecnt = }\DecValTok{0}\NormalTok{;}
+\NormalTok{        memset(adj, }\DecValTok{0}\NormalTok{, }\KeywordTok{sizeof}\NormalTok{ adj);}
+\NormalTok{        memset(dis, }\BaseNTok{0x3f}\NormalTok{, }\KeywordTok{sizeof}\NormalTok{ dis);}
+        \ControlFlowTok{for}\NormalTok{ (}\DataTypeTok{int}\NormalTok{ i = }\DecValTok{0}\NormalTok{; i < m; i++)}
+\NormalTok{        \{}
+            \DataTypeTok{int}\NormalTok{ x, y, z;}
+\NormalTok{            scanf(}\StringTok{"}\SpecialCharTok{%d%d%d}\StringTok{"}\NormalTok{, &x, &y, &z);}
+\NormalTok{            addEdge(x, y, z);}
+\NormalTok{            addEdge(y, x, z);}
+\NormalTok{        \}}
+        \ControlFlowTok{for}\NormalTok{ (}\DataTypeTok{int}\NormalTok{ i = }\DecValTok{1}\NormalTok{; i <= n; i++) ite[i] = H.push(\{i, *dis\});}
+        \ControlFlowTok{for}\NormalTok{ (H.modify(ite[}\DecValTok{1}\NormalTok{], \{}\DecValTok{1}\NormalTok{, dis[}\DecValTok{1}\NormalTok{] = }\DecValTok{0}\NormalTok{\}); !H.empty(); H.pop())}
+            \ControlFlowTok{for}\NormalTok{ (}\DataTypeTok{int}\NormalTok{ u = H.top().u, e = adj[u]; e; e = nxt[e])}
+                \ControlFlowTok{if}\NormalTok{ (dis[to[e]] > dis[u] + len[e])}
+\NormalTok{                    H.modify(ite[to[e]], \{to[e], dis[to[e]] = dis[u] + len[e]\});}
+\NormalTok{        printf(}\StringTok{"}\SpecialCharTok{%d\textbackslash{}n}\StringTok{"}\NormalTok{, dis[n]);}
+\NormalTok{    \}}
+    \ControlFlowTok{return} \DecValTok{0}\NormalTok{;}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
 
 \end{document}
