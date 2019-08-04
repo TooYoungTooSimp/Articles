@@ -28,7 +28,7 @@ The biggest different is the `Tag` template argument, pb_ds use this argument to
 
 Unlike STL's implementation, priority_queue in pb_ds supports more opeartions such as remove, modify and join. 
 
-For example, assume we are implementing heap optimized dijkstra to find single source shortest path, we need to update shortest path length for all point which will be relaxed. Traditionally, we will push a new `{new_dis, point}` into heap so we can find correct shortest point right now and when the top element's distance doesn't match the global answer, we can directly drop it for it is a obsoleted element. This can cause memory overhead obviously.
+For example, assuming that we are implementing heap optimized dijkstra to find single source shortest path, we need to update shortest path length for all points which will be relaxed. Traditionally, we will push a new `{new_dis, point}` into heap so we can find correct shortest point right now and when the top element's distance doesn't match the global answer, we can directly drop it for it is a obsoleted element. This can cause memory overhead obviously.
 
 But with the modify operation of pb\_ds's priority\_queue, we can elegantly solve this problem, we only need to add a global array to store all the iterators of points.
 
